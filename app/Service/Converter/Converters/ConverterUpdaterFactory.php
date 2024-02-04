@@ -2,9 +2,8 @@
 
 namespace App\Service\Converter\Converters;
 
-use App\Service\AbstractFactory;
+use wolfchara\AbstractFactory\Laravel\AbstractFactory;
 
 class ConverterUpdaterFactory extends AbstractFactory
 {
-
 }

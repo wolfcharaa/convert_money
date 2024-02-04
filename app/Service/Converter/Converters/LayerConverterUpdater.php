@@ -2,19 +2,20 @@
 
 namespace App\Service\Converter\Converters;
 
+use App\Models\ConverterType;
 use App\Service\Converter\AbstractConverterUpdater;
 use App\Service\Converter\ConverterUpdaterInterface;
 use Illuminate\Support\Facades\Http;
+use JsonException;
 
-class LayerConverterUpdater extends AbstractConverterUpdater implements ConverterUpdaterInterface
+class LayerConverterUpdater extends AbstractConverterUpdater
 {
-    const LAYER_API_URL = 'https://api.apilayer.com/currency_data/live?base=USD';
     const ENV_KEY = 'LAYER_CONVERTER_USER_ID';
 
-    function updateConverterInfo(): void
+    public function updateConverterInfo(): void
     {
         $userId = $this->checkAndReturnUserId();
-        $response = Http::withHeaders(['apikey'=>$userId])->get(self::LAYER_API_URL);
+        $response = Http::withHeaders(['apikey' => $userId])->get(self::LAYER_API_URL);
         var_dump($response);
         $responseArray = $response->json();
         $this->mainForex = $responseArray['source'];
@@ -36,9 +37,18 @@ class LayerConverterUpdater extends AbstractConverterUpdater implements Converte
         /** @var string|false $userId */
         $userId = env(self::ENV_KEY, false);
         if (!$userId) {
-            throw new \JsonException('В .env отсутсвует ключ ' . self::ENV_KEY);
+            throw new JsonException('В .env отсутсвует ключ ' . self::ENV_KEY);
         }
         return $userId;
     }
 
+    protected function setApiUrl(): string
+    {
+        return 'https://api.apilayer.com/currency_data/live?base=USD';
+    }
+
+    protected function setApiKey(): string
+    {
+        return ConverterType::class;
+    }
 }

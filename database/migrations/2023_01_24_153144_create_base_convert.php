@@ -1,34 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    const TABLE_NAME = 'forex_costs';
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
-        Schema::create(self::TABLE_NAME, function (Blueprint $table) {
+        Schema::create('converter_type', static function (Blueprint $table) {
+            $table->id();
+            $table->string('short_name');
+            $table->string('name');
+            $table->string('url');
+            $table->string('api_key')->nullable();
+        });
+
+        DB::statement(/** @lang PostgreSQL */ <<<SQL
+            INSERT INTO converter_type VALUES ('one', 'http', 'api'); 
+        SQL);
+
+        Schema::create('forex_costs_actual', static function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('main_forex');
-            $table->jsonb('forex_cost_array');
+            $table->foreignId('forex_type')
+                ->constrained();
+            $table->string('currency');
+            $table->float('forex');
+        });
+
+        Schema::create('forex_costs_history', static function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+            $table->foreignId('forex_type')
+                ->constrained();
+            $table->string('currency');
+            $table->float('forex');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists(self::TABLE_NAME);
+        Schema::dropIfExists('forex_costs');
     }
 };

@@ -1,34 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Converter;
 
+use App\Models\ConverterType;
 use App\Service\Converter\Converters\LayerConverterUpdater;
 use App\Service\Converter\Converters\OERConverterUpdater;
 
 interface ConverterUpdaterInterface
 {
-
-    const ConverterPointer = [
-        "OER" => OERConverterUpdater::class,
-        "layer" => LayerConverterUpdater::class
+    public const CONVERTER_POINTER = [
+        ConverterType::OER => OERConverterUpdater::class,
+        ConverterType::LAYER => LayerConverterUpdater::class
     ];
+
     /**
      * Получить актуальные значения из АПИ и записать
      * их в переменную $forexCostArray - массив [дополнительная валюта => стоимость основной]
      * и заполнить переменную $mainForex - основная валюта
      * @return void
      */
-    function updateConverterInfo(): void;
+    public function updateConverterInfo(): void;
 
     /**
      * Возвращает массив стоимости основной валюты
-     * @return array
      */
-    function getForexCostArray(): array;
+    public function getForexCostArray(): array;
 
     /**
-     *  Возвращает основную валюту
-     * @return string
+     * Возвращает основную валюту
      */
-    function getMainForex(): string;
+    public function getMainForex(): string;
 }

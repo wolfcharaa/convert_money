@@ -10,7 +10,8 @@
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "vimeo/psalm": "^5.21"
+        "vimeo/psalm": "^5.21",
+        "wolfcharaa/abstract_factory": "main-dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
@@ -62,5 +63,11 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/wolfcharaa/AbstractFactory.git"
+        }
+    ]
 }

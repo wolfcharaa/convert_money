@@ -2,17 +2,38 @@
 
 namespace App\Service\Converter;
 
-abstract class AbstractConverterUpdater
+abstract class AbstractConverterUpdater implements ConverterUpdaterInterface
 {
-    protected array  $forexCostArray;
+    protected string $apiUrl;
+    protected string $apiKey;
+    protected array $forexCostArray;
     protected string $mainForex;
 
-    function getForexCostArray(): array
+    public function __construct()
+    {
+        $this->apiUrl = $this->setApiUrl();
+        $this->apiKey = $this->setApiKey();
+    }
+
+    abstract protected function setApiUrl(): string;
+    abstract protected function setApiKey(): string;
+
+    public function getApiUrl(): string
+    {
+        return $this->apiUrl;
+    }
+
+    public function getApiKey(): string
+    {
+        return $this->apiKey;
+    }
+
+    public function getForexCostArray(): array
     {
         return $this->forexCostArray;
     }
 
-    function getMainForex(): string
+    public function getMainForex(): string
     {
         return $this->mainForex;
     }

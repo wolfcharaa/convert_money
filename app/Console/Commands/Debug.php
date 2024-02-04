@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ForexCost;
+use App\Models\ForexCostActual;
 use App\Service\Converter\Conversion;
+use App\Service\Converter\ConverterUpdaterInterface;
 use Illuminate\Console\Command;
 
 class Debug extends Command
@@ -38,8 +39,14 @@ class Debug extends Command
      */
     public function handle()
     {
+        $number = 3;
+        if (!array_key_exists($number, ConverterUpdaterInterface::CONVERTER_POINTER)) {
+            print("Not found {$number} from " . ConverterUpdaterInterface::class);
+            return Command::FAILURE;
+        }
 
-        print($this->converter->convertForex('USD', 'EUR', 1));
+        $type = ConverterUpdaterInterface::CONVERTER_POINTER[$number];
+        print_r("\n{$type}\n\n");
         return Command::SUCCESS;
     }
 }

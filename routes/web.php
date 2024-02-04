@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\MoneyController;
+use App\Http\Controllers\View\MoneyView;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,5 +17,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/main', [MoneyController::class, 'mainPage']);
-Route::post('/main', [MoneyController::class, 'getResult']);
+Route::get('/main', [MoneyView::class, 'mainPage']);
+Route::post('/main', [MoneyView::class, 'getResult']);
