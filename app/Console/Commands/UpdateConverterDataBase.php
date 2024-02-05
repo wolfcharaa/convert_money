@@ -8,6 +8,9 @@ use App\Service\Converter\ConverterUpdaterInterface;
 use Illuminate\Console\Command;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\Console\Command\Command as CommandAlias;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateConverterDataBase extends Command
 {
@@ -16,7 +19,14 @@ class UpdateConverterDataBase extends Command
         parent::__construct();
     }
 
-    protected $signature = 'converter:update';
+    protected $signature = 'converter:update
+     {--type :
+        OER = 1,
+        LAYER = 2,
+        FIXER = 3,
+        EXCHANGERATES = 4,
+        FREE_CURRENCY = 5
+     }';
 
     protected $description = 'Обновляет базу в соответствиии с выбранным конвертором';
 
@@ -26,20 +36,16 @@ class UpdateConverterDataBase extends Command
      */
     public function handle(): int
     {
-        $convertType = $this->choice(
-            'Which converter should the data be updated for?',
-            []
-        );
+        $convertType = $this->option('type');
 
         if (!array_key_exists($convertType, ConverterUpdaterInterface::CONVERTER_POINTER)) {
             print("Not found {$convertType} from " . ConverterUpdaterInterface::class);
-            return Command::FAILURE;
+            return CommandAlias::FAILURE;
         }
 
         /** @var ConverterUpdaterInterface $converter */
         $converter = $this->converterUpdaterFactory
             ->create(ConverterUpdaterInterface::CONVERTER_POINTER[$convertType]);
-
 
         $converter->updateConverterInfo();
         $forexCost = new ForexCostActual();
@@ -47,6 +53,6 @@ class UpdateConverterDataBase extends Command
         $forexCost->main_forex = $converter->getMainForex();
         $forexCost->save();  //TODO разобраться почему данные не сохраняются в базу данных
 
-        return Command::SUCCESS;
+        return CommandAlias::SUCCESS;
     }
 }
