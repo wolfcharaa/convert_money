@@ -26,10 +26,14 @@ interface ConverterUpdaterInterface
     /**
      * Возвращает массив стоимости основной валюты
      */
-    public function getForexCostArray(): array;
+    public function getForexCostToSave(): iterable;
 
     /**
      * Возвращает основную валюту
      */
     public function getMainForex(): string;
+
+    public function setConverterType(): int;
+
+    public function parseResponse(string $json): array;
 }

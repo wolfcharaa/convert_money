@@ -7,18 +7,20 @@ use Illuminate\Support\Facades\Redis;
 
 abstract class AbstractConverterUpdater implements ConverterUpdaterInterface
 {
-    protected int $converterType;
+    private int $converterType;
     private string $apiUrl;
     private string $apiKey;
     protected array $forexCostArray;
     protected string $mainForex;
-    private ?Redis $redis;
+    private mixed $redis;
 
     public function __construct()
     {
+        $this->converterType = $this->setConverterType();
         $this->redis = Redis::connection()->client();
-        $this->apiUrl = $this->setApiUrl();
-        $this->apiKey = $this->setApiKey();
+        $array = $this->getCacheUrlAndKey();
+        $this->apiUrl = $array['url'];
+        $this->apiKey = $array['api_key'];
     }
 
     public function getApiUrl(): string
@@ -31,9 +33,11 @@ abstract class AbstractConverterUpdater implements ConverterUpdaterInterface
         return $this->apiKey;
     }
 
-    public function getForexCostArray(): array
+    public function getForexCostToSave(): iterable
     {
-        return $this->forexCostArray;
+        foreach ($this->forexCostArray as $forexCost) {
+            yield $forexCost;
+        }
     }
 
     public function getMainForex(): string
@@ -41,55 +45,17 @@ abstract class AbstractConverterUpdater implements ConverterUpdaterInterface
         return $this->mainForex;
     }
 
-    private function setApiUrl(): string
+    private function getCacheUrlAndKey(): array
     {
-        $apiUrl = $this->getCacheByApiUrl();
-
-        if ($apiUrl) {
-            return $apiUrl;
+        if ($value = $this->redis->get(static::class)) {
+            return json_decode($value, true, 512, JSON_THROW_ON_ERROR);
         }
 
-        $value = (ConverterType::query()->find($this->converterType))->value('url');
+        /** @var ConverterType $converterType */
+        $converterType = ConverterType::query()->find($this->converterType);
 
-        $this->setCacheValue('url', $value);
+        $this->redis->set(static::class, json_encode($converterType->attributesToArray(), JSON_THROW_ON_ERROR));
 
-        return $value;
-    }
-
-    private function setApiKey(): string
-    {
-        $apiKey = $this->getCacheByApiKey();
-
-        if ($apiKey) {
-            return $apiKey;
-        }
-
-        $value = (ConverterType::query()->find($this->converterType))->value('api_key');
-
-        $this->setCacheValue('key', $value);
-
-        return $value;
-    }
-    private function getCacheByApiUrl(): ?string
-    {
-        if ($value = $this->redis->get(static::class . 'url')) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    private function getCacheByApiKey(): ?string
-    {
-        if ($value = $this->redis->get(static::class . 'key')) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    private function setCacheValue(string $redisKey, string $value): void
-    {
-        $this->redis->set(static::class . $redisKey, $value);
+        return $converterType->getAttributes();
     }
 }

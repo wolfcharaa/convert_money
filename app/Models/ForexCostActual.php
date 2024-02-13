@@ -3,17 +3,33 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property string main_forex
- * @property array  forex_cost_array
- * @property int    id
+ * @property int id
+ * @property string created_at
+ * @property string updated_at
+ * @property int converter_types
+ * @property string currency
+ * @property float forex
+ *
+ * @property ConverterType converterType
  */
 class ForexCostActual extends Model
 {
     protected $fillable = [
-        'main_forex',
-        'forex_cost_array',
         'id',
+        'converter_types',
+        'currency',
+        'forex',
     ];
+
+    protected $casts = [
+        'forex' => 'float'
+    ];
+
+    public function converterType(): BelongsTo
+    {
+        return $this->belongsTo('converted_types', 'id');
+    }
 }
